@@ -1,5 +1,5 @@
 # AwsLambdaTelegramRssBotNews
-Small pet project. 
+Small pet project using .net core, AWS Lambda and Telegram Bot api to send news from RSS feeds.
 
 # Description
 
