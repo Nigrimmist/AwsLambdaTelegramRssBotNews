@@ -7,17 +7,23 @@ Reading rss channels -> Find interesting by predefined keywords (blacklist/white
 
 # Technologies
 .net core 2.1, C#
+
 AWS Lambda - to run it every n hours (using AWS CloudWatch)
+
 AWS DynamoDB - to store latest posted news (to not send twice)
+
 Telegram bot official api for .net - to send urls in Telegram using bot
 
 # Project requirements
 Visual studio 2019
+
 .net core 2.1 (aws requirement)
 
 # Project structure
 AWSLambdaRssNews project - main lambda project, calling AwsLamdaRssCore
+
 AwsLamdaRssCore - core project containing all business code.
+
 Console4 is a console project to testing locally, nothing special.
 
 # PS
