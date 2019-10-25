@@ -20,7 +20,7 @@ AWSLambdaRssNews project - main lambda project, calling AwsLamdaRssCore
 AwsLamdaRssCore - core project containing all business code.
 Console4 is a console project to testing locally, nothing special.
 
-# Project structure
+# PS
 Be carefull, it is a demo. For example, it has not any optimisations,code ported from others pet projects, no any logic to clear db and etc and etc. Also, keep in mind, that you need to have environment variables with "secret" data, to fast run - just replace them all to strings with your data.
 
 Pull Requests are welcome! Have fun!
