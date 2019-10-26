@@ -27,7 +27,7 @@ AwsLamdaRssCore - core project containing all business code.
 Console4 is a console project to testing locally, nothing special.
 
 # PS
-Be carefull, it is a demo. For example, it has not any optimisations,code ported from others pet projects, no any logic to clear db and etc and etc. Also, keep in mind, that you need to have environment variables with "secret" data, to fast run - just replace them all to strings with your data.
+Be carefull, it is a demo. For example, it has not any optimisations,code ported from others pet projects, no any logic to clear db and etc and etc. Also, keep in mind, that you need to have environment variables with "secret" data, you can fill them in consoleApp4 project (for test purposes).
 
 Pull Requests are welcome! Have fun!
 

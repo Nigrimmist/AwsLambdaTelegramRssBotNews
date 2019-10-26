@@ -19,7 +19,13 @@ namespace ConsoleApp4
 
         public static void Main(string[] args)
         {
-
+            Environment.SetEnvironmentVariable("AwsAccessKey", "");
+            Environment.SetEnvironmentVariable("AwsSecretKey", "");
+            Environment.SetEnvironmentVariable("ChatOwnerId", "");
+            Environment.SetEnvironmentVariable("MonkeyJobBotToken", "");
+            Environment.SetEnvironmentVariable("MotoNewsChatBotToken", "");
+            Environment.SetEnvironmentVariable("MotoNewsChatId", "");
+            Environment.SetEnvironmentVariable("PrivateMotoChatId", "");
             Task t = MainAsync(args);
             t.Wait();
 
