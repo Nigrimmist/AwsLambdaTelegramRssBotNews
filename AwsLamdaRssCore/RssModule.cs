@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.ServiceModel.Syndication;
 using System.Xml;
@@ -16,7 +17,14 @@ namespace AwsLamdaRssCore
             foreach (var rss in settings.Rss)
             {
                 List<RssResponseItem> responseItems = new List<RssResponseItem>();
-                using (XmlReader reader = XmlReader.Create(rss.URL))
+                HtmlReaderManager hrm = new HtmlReaderManager();
+                hrm.Get(rss.URL);
+                string rssContent = hrm.Html;
+
+                if (rss.contentPrehandleFunc != null)
+                    rssContent = rss.contentPrehandleFunc(rssContent);
+
+                using (XmlReader reader = XmlReader.Create(new StringReader(rssContent)))
                 {
                     SyndicationFeed feed = SyndicationFeed.Load(reader);
                     foreach (SyndicationItem item in feed.Items)
@@ -119,11 +127,14 @@ public class RssSettingsItem
 
     public DateTime? LastDisplayedDateTime { get; set; }
 
+    public Func<string,string> contentPrehandleFunc { get; set; }
+
     public RssSettingsItem()
     {
         WhiteList = new List<string>();
         BlackList = new List<string>();
         StopList = new List<string>();
+        contentPrehandleFunc = null;
     }
 }
 }

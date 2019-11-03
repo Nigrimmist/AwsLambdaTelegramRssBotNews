@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2.DataModel;
 
@@ -15,24 +16,32 @@ namespace AwsLamdaRssCore
             RssSettings settings = new RssSettings();
             settings.Rss = new List<RssSettingsItem>();
 
-            List<string> WhiteList = new List<string>() {"мотоц", "байк", "скутер", "мотос"};
-            List<string> StopList = new List<string>() {"мотоблок"};
+            List<string> rssUrs = new List<string>()
+            {
+                "https://news.tut.by/rss/all.rss",
+                "https://www.onliner.by/feed"
+            };
 
+            List<string> whiteList = new List<string>() {"мотоц", "байк", "скутер", "электроцикл","мототехн", "harley"};
+            List<string> stopList = new List<string>() {"мотоблок", "байкал"};
+
+            
             settings.Rss.Add(new RssSettingsItem()
             {
-                URL = "http://news.tut.by/rss/world.rss",
-                WhiteList = WhiteList,
-                StopList = StopList,
-
+                URL = "https://www.abw.by/rss/all.rss",
+                WhiteList = whiteList,
+                StopList = stopList,
+                // this rss feed is in invalid format, so deleting <atom> tag before <channel> solving the issue
+                contentPrehandleFunc = (rssContent) => Regex.Replace(rssContent, @"\<atom.*?/\>", "",RegexOptions.Singleline)
             });
-            settings.Rss.Add(new RssSettingsItem()
+
+            settings.Rss.AddRange(rssUrs.Select(rssUrl=>new RssSettingsItem()
             {
-                URL = "https://www.onliner.by/feed",
-                WhiteList = WhiteList,
-                StopList = StopList,
-
-            });
-
+                URL = rssUrl,
+                WhiteList = whiteList,
+                StopList = stopList
+            }));
+            
             string ownerChatId = Environment.GetEnvironmentVariable("ChatOwnerId");
             string monkeyJobBotToken = Environment.GetEnvironmentVariable("MonkeyJobBotToken");
             string privateMotoChatId = Environment.GetEnvironmentVariable("PrivateMotoChatId");
