@@ -10,11 +10,24 @@ namespace AwsLamdaRssCore
 {
     public class RssGrabber
     {
+        private readonly string _ownerChatId = Environment.GetEnvironmentVariable("ChatOwnerId");
+        private readonly string _monkeyJobBotToken = Environment.GetEnvironmentVariable("MonkeyJobBotToken");
+        private readonly string _privateMotoChatId = Environment.GetEnvironmentVariable("PrivateMotoChatId");
+        private readonly string _motoNewsChatId = Environment.GetEnvironmentVariable("MotoNewsChatId");
+        private readonly string _motoNewsChatBotToken = Environment.GetEnvironmentVariable("MotoNewsChatBotToken");
+
+        public RssGrabber()
+        {
+            
+        }
+
         public async Task<string> Grab()
         {
             var rssModule = new RssModule();
             RssSettings settings = new RssSettings();
             settings.Rss = new List<RssSettingsItem>();
+
+            rssModule.OnException += LogError;
 
             List<string> rssUrs = new List<string>()
             {
@@ -22,7 +35,7 @@ namespace AwsLamdaRssCore
                 "https://www.onliner.by/feed"
             };
 
-            List<string> whiteList = new List<string>() {"мотоц", "байк", "скутер", "электроцикл","мототехн", "harley"};
+            List<string> whiteList = new List<string>() {"мотоц", "байк", "скутер", "электроцикл","мототехн", "harley" };
             List<string> stopList = new List<string>() {"мотоблок", "байкал"};
 
             
@@ -42,19 +55,13 @@ namespace AwsLamdaRssCore
                 StopList = stopList
             }));
             
-            string ownerChatId = Environment.GetEnvironmentVariable("ChatOwnerId");
-            string monkeyJobBotToken = Environment.GetEnvironmentVariable("MonkeyJobBotToken");
-            string privateMotoChatId = Environment.GetEnvironmentVariable("PrivateMotoChatId");
-            string motoNewsChatId = Environment.GetEnvironmentVariable("MotoNewsChatId");
-            string motoNewsChatBotToken = Environment.GetEnvironmentVariable("MotoNewsChatBotToken");
-            Console.WriteLine(ownerChatId + " " + monkeyJobBotToken + " " + privateMotoChatId + " " + motoNewsChatId + " " + motoNewsChatBotToken );
+            
+            Console.WriteLine(_ownerChatId + " " + _monkeyJobBotToken + " " + _privateMotoChatId + " " + _motoNewsChatId + " " + _motoNewsChatBotToken );
 
             try
             {
-                var telegram = new TelegramClient(ownerChatId, monkeyJobBotToken);
-
-                var privateMotoChat = new TelegramClient(privateMotoChatId, monkeyJobBotToken);
-                var motoNewsTelegram = new TelegramClient(motoNewsChatId, motoNewsChatBotToken);
+                var privateMotoChat = new TelegramClient(_privateMotoChatId, _monkeyJobBotToken);
+                var motoNewsTelegram = new TelegramClient(_motoNewsChatId, _motoNewsChatBotToken);
 
 
                 var urls = rssModule.FindNews(settings);
@@ -87,12 +94,18 @@ namespace AwsLamdaRssCore
             }
             catch (Exception e)
             {
-                var telegram = new TelegramClient(ownerChatId, monkeyJobBotToken);
-                telegram.SendMessage(@"Скрипт моточатика сломалсо ¯\_(ツ)_/¯ " + Environment.NewLine+e.ToString());
-
+                LogError(e);
                 throw;
             }
 
+        }
+
+        
+
+        public void LogError(Exception ex)
+        {
+            var telegram = new TelegramClient(_ownerChatId, _monkeyJobBotToken);
+            telegram.SendMessage(@"Скрипт моточатика сломалсо ¯\_(ツ)_/¯ " + Environment.NewLine + ex.ToString());
         }
     }
 
