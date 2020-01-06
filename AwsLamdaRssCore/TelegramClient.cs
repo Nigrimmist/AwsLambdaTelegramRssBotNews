@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Telegram.Bot;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace AwsLamdaRssCore
 {
@@ -15,55 +17,48 @@ namespace AwsLamdaRssCore
             _botToken = botToken;
         }
 
-        private List<ClientTelegramWrapper> _bots = null;
+        private ClientTelegramWrapper _bot = null;
 
-        public void SendMessage(string message)
+        public void SendMessage(string message, InlineKeyboardMarkup keyboardMarkup = null)
         {
             if (message == null) return;
 
-            if (_bots == null)
+            if (_bot == null)
             {
-                _bots = new List<ClientTelegramWrapper>();
-                _bots.Add(new ClientTelegramWrapper()
+                _bot = new ClientTelegramWrapper()
                 {
                     Token = _botToken,
                     ChatId = _toChatId,
                     ShowTitle = false
-                });
+                };
             }
 
-            if (_bots.Any())
+
+            if (_bot.Bot == null && !_bot.BotInited)
             {
-                foreach (var bot in _bots)
+
+                if (!string.IsNullOrEmpty(_bot.Token))
                 {
-                    if (bot.Bot == null && !bot.BotInited)
-                    {
-
-                        if (!string.IsNullOrEmpty(bot.Token))
-                        {
-                            bot.Bot = new TelegramBotClient(bot.Token);
-                            SendMessage(bot.Bot, bot.ChatId, message);
-
-                        }
-
-                        bot.BotInited = true;
-                    }
+                    _bot.Bot = new TelegramBotClient(_bot.Token);
                 }
 
+                _bot.BotInited = true;
             }
 
-        }
+            SendMessage(_bot.Bot, _bot.ChatId, message, keyboardMarkup);
+        }      
 
+        
 
-        private void SendMessage(TelegramBotClient bot, string chatId, string message)
+        private void SendMessage(TelegramBotClient bot, string chatId, string message, InlineKeyboardMarkup keyboardMarkup = null)
         {
             if (!chatId.StartsWith("@") && long.TryParse(chatId, out var id))
             {
-                var result = bot.SendTextMessageAsync(id, message).Result;
+                var result = bot.SendTextMessageAsync(id, message, replyMarkup: keyboardMarkup).Result;
             }
             else
             {
-                var result = bot.SendTextMessageAsync(chatId, message).Result;
+                var result = bot.SendTextMessageAsync(chatId, message, replyMarkup: keyboardMarkup).Result;
             }
         }
     }

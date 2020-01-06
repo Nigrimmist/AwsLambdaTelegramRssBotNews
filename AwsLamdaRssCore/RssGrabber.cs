@@ -21,8 +21,9 @@ namespace AwsLamdaRssCore
             
         }
 
-        public async Task<string> Grab()
+        public async Task<List<string>> GrabUrls()
         {
+            List<string> toReturn = new List<string>();
             var rssModule = new RssModule();
             RssSettings settings = new RssSettings();
             settings.Rss = new List<RssSettingsItem>();
@@ -35,15 +36,17 @@ namespace AwsLamdaRssCore
                 "https://www.onliner.by/feed"
             };
 
-            List<string> whiteList = new List<string>() {"мотоц", "байк", "скутер", "электроцикл","мототехн", "harley" };
-            List<string> stopList = new List<string>() {"мотоблок", "байкал"};
+            List<string> whiteList = new List<string>() { "мотоц","мотобренд","мотопутешеств", "байк", "скутер", "электроцикл","мототехн", "harley","ducati","kawasaki" };
+            List<string> blackList = new List<string>() { "байкал" };
+            List<string> stopList = new List<string>() {"мотоблок"};
 
-            
+
             settings.Rss.Add(new RssSettingsItem()
             {
                 URL = "https://www.abw.by/rss/all.rss",
                 WhiteList = whiteList,
                 StopList = stopList,
+                BlackList = blackList,
                 // this rss feed is in invalid format, so deleting <atom> tag before <channel> solving the issue
                 contentPrehandleFunc = (rssContent) => Regex.Replace(rssContent, @"\<atom.*?/\>", "",RegexOptions.Singleline)
             });
@@ -52,18 +55,13 @@ namespace AwsLamdaRssCore
             {
                 URL = rssUrl,
                 WhiteList = whiteList,
-                StopList = stopList
+                StopList = stopList,
+                BlackList = blackList
             }));
             
             
-            Console.WriteLine(_ownerChatId + " " + _monkeyJobBotToken + " " + _privateMotoChatId + " " + _motoNewsChatId + " " + _motoNewsChatBotToken );
-
             try
             {
-                var privateMotoChat = new TelegramClient(_privateMotoChatId, _monkeyJobBotToken);
-                var motoNewsTelegram = new TelegramClient(_motoNewsChatId, _motoNewsChatBotToken);
-
-
                 var urls = rssModule.FindNews(settings);
                 Console.WriteLine("found " + urls.Count + " urls");
 
@@ -78,10 +76,7 @@ namespace AwsLamdaRssCore
                         {
                             if (latestStoredNews.All(x => x.NewsUrl != url))
                             {
-                                Console.WriteLine("sending to telegram1");
-                                privateMotoChat.SendMessage(url);
-                                Console.WriteLine("sending to telegram2");
-                                motoNewsTelegram.SendMessage(url);
+                                toReturn.Add(url);                                
                                 Console.WriteLine("saving to db item");
                                 store.AddEntity(new RssFeedLog() {NewsId = Guid.NewGuid(), NewsUrl = url});
                                 Console.WriteLine("saved");
@@ -90,7 +85,7 @@ namespace AwsLamdaRssCore
                         }
                     }
                 }
-                return urls.Count().ToString();
+                return toReturn;
             }
             catch (Exception e)
             {
