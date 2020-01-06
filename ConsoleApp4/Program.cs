@@ -11,8 +11,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AwsLamdaRssCore;
-using Telegram.Bot.Types.ReplyMarkups;
-using System.IO;
 
 namespace ConsoleApp4
 {
@@ -21,15 +19,13 @@ namespace ConsoleApp4
 
         public static void Main(string[] args)
         {
-            Environment.SetEnvironmentVariable("AwsAccessKey", "AKIAJFQDXIG3XDZ2CKGQ");
-            Environment.SetEnvironmentVariable("AwsSecretKey", "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");
-            Environment.SetEnvironmentVariable("ChatOwnerId", "101483786");
-            Environment.SetEnvironmentVariable("MonkeyJobBotToken", "258763201:AAHseg57B9ld2wo9U5RKnZWbvbuPfXMrYNM");
-            Environment.SetEnvironmentVariable("MotoNewsChatBotToken", "247995979:AAFRMNTilitQYypinYQ9epLOf7p8isU30k8");
-            //Environment.SetEnvironmentVariable("MotoNewsChatId", "@motoNewsBy");
-            Environment.SetEnvironmentVariable("MotoNewsChatId", "101483786");
-            //Environment.SetEnvironmentVariable("PrivateMotoChatId", "-1001138372643");
-            Environment.SetEnvironmentVariable("PrivateMotoChatId", "101483786");
+            Environment.SetEnvironmentVariable("AwsAccessKey", "");
+            Environment.SetEnvironmentVariable("AwsSecretKey", "");
+            Environment.SetEnvironmentVariable("ChatOwnerId", "");
+            Environment.SetEnvironmentVariable("MonkeyJobBotToken", "");
+            Environment.SetEnvironmentVariable("MotoNewsChatBotToken", "");
+            Environment.SetEnvironmentVariable("MotoNewsChatId", "");
+            Environment.SetEnvironmentVariable("PrivateMotoChatId", "");
             Task t = MainAsync(args);
             t.Wait();
 
@@ -39,12 +35,7 @@ namespace ConsoleApp4
 
         public static async Task MainAsync(string[] args)
         {
-            
-            string json = File.ReadAllText("./webhook.test.json");
-        
-            var s = JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JObject>(json);            
-            new AwsLambdaHandleTelegramWebhooks.Function().FunctionHandler(s,null);
-
+            await new RssGrabber().GrabUrls();
         }
     }
 
