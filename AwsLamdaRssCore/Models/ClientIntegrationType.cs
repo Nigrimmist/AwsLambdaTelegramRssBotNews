@@ -7,6 +7,7 @@ namespace AwsLamdaRssCore.Models
     public enum ClientIntegrationType
     {
         Owner = 1,
-        IntegrationClient = 2
+        Debug = 2,
+        IntegrationClient = 3
     }
 }

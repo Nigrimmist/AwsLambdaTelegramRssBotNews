@@ -26,6 +26,8 @@ namespace ConsoleApp4
             Environment.SetEnvironmentVariable("MotoNewsChatBotToken", "");
             Environment.SetEnvironmentVariable("MotoNewsChatId", "");
             Environment.SetEnvironmentVariable("PrivateMotoChatId", "");
+            Environment.SetEnvironmentVariable("DebugBotToken", "");
+
             Task t = MainAsync(args);
             t.Wait();
 

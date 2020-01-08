@@ -38,7 +38,7 @@ namespace AWSLambdaRssNews
                 }
                 catch (Exception e)
                 {
-                    sender.SendMessageToOwner(e.ToString());
+                    sender.SendMessageToDebug(e.ToString());
                     throw;
                 }
             }

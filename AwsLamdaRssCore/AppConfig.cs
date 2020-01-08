@@ -7,6 +7,7 @@ namespace AwsLamdaRssCore
     public class AppConfig
     {
         public static readonly string OwnerChatId = Environment.GetEnvironmentVariable("ChatOwnerId");
+        public static readonly string DebugBotToken = Environment.GetEnvironmentVariable("DebugBotToken");
         public static readonly string MonkeyJobBotToken = Environment.GetEnvironmentVariable("MonkeyJobBotToken");
         public static readonly string PrivateMotoChatId = Environment.GetEnvironmentVariable("PrivateMotoChatId");
         public static readonly string MotoNewsChatId = Environment.GetEnvironmentVariable("MotoNewsChatId");

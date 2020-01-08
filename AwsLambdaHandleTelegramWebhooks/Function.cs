@@ -30,12 +30,13 @@ namespace AwsLambdaHandleTelegramWebhooks
                 try
                 {
                     Update webhookData = JsonConvert.DeserializeObject<Update>(input["body"].ToString());
-                    sender.SendMessageToOwner(input["body"].ToString());
+
                     sender.HandleWebhookUpdate(webhookData);
                 }
                 catch (Exception ex)
                 {
-                    sender.SendMessageToOwner(ex.ToString());
+                    sender.SendMessageToDebug(ex.ToString());
+                    sender.SendMessageToDebug(input["body"].ToString());
                 }
 
             }
