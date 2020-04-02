@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Runtime;
 
@@ -87,6 +88,14 @@ namespace AwsLamdaRssCore
             List<ScanCondition> conditions = new List<ScanCondition>();
             var allDocs = await _context.ScanAsync<T>(conditions).GetRemainingAsync();
             Console.WriteLine("retrieved docs count : "+allDocs.Count);
+
+            var top10 = await _context.FromScanAsync<T>(new ScanOperationConfig
+            {
+                Limit = 10,
+                
+                //Filter = ...
+            }).GetNextSetAsync();
+
             return allDocs;
         }
 

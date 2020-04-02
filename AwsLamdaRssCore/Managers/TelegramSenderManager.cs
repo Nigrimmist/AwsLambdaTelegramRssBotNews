@@ -29,7 +29,7 @@ namespace AwsLamdaRssCore.Managers
             {
                 ClientIntegrationSettings = new List<ClientIntegrationSettings>()
                 {
-                    new ClientIntegrationSettings("Owner", AppConfig.OwnerChatId, AppConfig.MonkeyJobBotToken, ClientIntegrationType.Owner),
+                    new ClientIntegrationSettings("Owner", AppConfig.OwnerChatId, AppConfig.MotoNewsChatBotToken, ClientIntegrationType.Owner),
                     new ClientIntegrationSettings("Debug", AppConfig.OwnerChatId, AppConfig.DebugBotToken, ClientIntegrationType.Debug),
                     new ClientIntegrationSettings("MotoNews channel", AppConfig.MotoNewsChatId, AppConfig.MotoNewsChatBotToken),
                     new ClientIntegrationSettings("Local chat", AppConfig.PrivateMotoChatId, AppConfig.MonkeyJobBotToken)
@@ -80,7 +80,7 @@ namespace AwsLamdaRssCore.Managers
 
         public void SendMessageToDebug(string message)
         {
-            _debugClient.Client.SendMessage(message);
+            _debugClient.Client.SendMessage("rss bot debug  : "+message);
         }
 
 

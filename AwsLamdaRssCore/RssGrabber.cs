@@ -36,7 +36,7 @@ namespace AwsLamdaRssCore
                 "https://www.onliner.by/feed"
             };
 
-            List<string> whiteList = new List<string>() { "мотоц","мотобренд","мотопутешеств", "байк", "скутер", "электроцикл","мототехн", "harley","ducati","kawasaki" };
+            List<string> whiteList = new List<string>() {  "мото","мотобренд","мотопутешеств", "байк", "скутер", "электроцикл","мототехн", "harley","ducati","kawasaki" };
             List<string> blackList = new List<string>() { "байкал" };
             List<string> stopList = new List<string>() {"мотоблок"};
 
