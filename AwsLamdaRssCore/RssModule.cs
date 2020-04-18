@@ -75,11 +75,11 @@ namespace AwsLamdaRssCore
 
                 if (responseItems.Any())
                 {
-                    string[] separators = {",", ".", "!", "\'", " ", "\'s", "(", ")", "\"", "<<", ">>", "?", "-"};
+                    string[] separators = {",", ".", "!", "\'", " ", "\'s", "(", ")", "\"", "<<", ">>", "?", "-", ":"};
 
                     foreach (var item in responseItems)
                     {
-                        bool validItem = true;
+                        bool validItem = false;
                         List<string> words = item.Title.Split(separators, StringSplitOptions.RemoveEmptyEntries)
                             .ToList();
                         foreach (var word in words)
@@ -87,32 +87,15 @@ namespace AwsLamdaRssCore
                             var w = word.Trim().ToLower();
                             if (rss.WhiteList.Any())
                             {
-                                var isInWhiteList =
-                                    rss.WhiteList.Any(x => w.Trim().ToLower().Contains(x.Trim().ToLower()));
+                                var isInWhiteList = rss.WhiteList.Any(x => w.Trim().ToLower().Contains(x.Trim().ToLower()));
                                 var isInBlackList = rss.BlackList.Any(y => w.Contains(y.Trim().ToLower()));
                                 if (isInWhiteList && !isInBlackList)
                                 {
                                     validItem = true;
                                     break;
                                 }
-                                else
-                                {
-                                    validItem = false;
-                                }
                             }
-                            else if (rss.BlackList.Any())
-                            {
-                                if (rss.BlackList.Any(x => w.Trim().ToLower().Contains(x.Trim().ToLower())))
-                                {
-                                    validItem = false;
-                                    break;
-                                }
-                            }
-                        }
 
-                        if (rss.StopList.Any() && validItem)
-                        {
-                            validItem = !rss.StopList.Any(x => words.Any(y => y.Equals(x)));
                         }
 
                         if (validItem)
@@ -160,7 +143,6 @@ public class RssSettingsItem
 
     public List<string> BlackList { get; set; }
 
-    public List<string> StopList { get; set; }
 
     public DateTime? LastDisplayedDateTime { get; set; }
 
@@ -170,7 +152,6 @@ public class RssSettingsItem
     {
         WhiteList = new List<string>();
         BlackList = new List<string>();
-        StopList = new List<string>();
         contentPrehandleFunc = null;
     }
 }

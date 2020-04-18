@@ -37,15 +37,13 @@ namespace AwsLamdaRssCore
             };
 
             List<string> whiteList = new List<string>() {  "мото","мотобренд","мотопутешеств", "байк", "скутер", "электроцикл","мототехн", "harley","ducati","kawasaki" };
-            List<string> blackList = new List<string>() { "байкал" };
-            List<string> stopList = new List<string>() {"мотоблок"};
+            List<string> blackList = new List<string>() { "байкал", "мотор", "мотоблок" };
 
 
             settings.Rss.Add(new RssSettingsItem()
             {
                 URL = "https://www.abw.by/rss/all.rss",
                 WhiteList = whiteList,
-                StopList = stopList,
                 BlackList = blackList,
                 // this rss feed is in invalid format, so deleting <atom> tag before <channel> solving the issue
                 contentPrehandleFunc = (rssContent) => Regex.Replace(rssContent, @"\<atom.*?/\>", "",RegexOptions.Singleline)
@@ -55,7 +53,6 @@ namespace AwsLamdaRssCore
             {
                 URL = rssUrl,
                 WhiteList = whiteList,
-                StopList = stopList,
                 BlackList = blackList
             }));
             
