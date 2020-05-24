@@ -14,9 +14,9 @@ namespace AwsLamdaRssCore
 
         public delegate void OnExceptionHandler(Exception ex);
 
-        public List<string> FindNews(RssSettings settings)
+        public List<RssFoundItem> FindNews(RssSettings settings)
         {
-            List<string> toReturn = new List<string>();
+            List<RssFoundItem> toReturn = new List<RssFoundItem>();
             if (settings != null && settings.Rss.Any())
             {
                 var tasks = settings.Rss.Select(rss => Task.Factory.StartNew(() => FindNewsItem(rss))).ToList();
@@ -27,9 +27,9 @@ namespace AwsLamdaRssCore
             return toReturn;
         }
 
-        private List<string> FindNewsItem(RssSettingsItem rss)
+        private List<RssFoundItem> FindNewsItem(RssSettingsItem rss)
         {
-            List<string> newsToReturn = new List<string>();
+            List<RssFoundItem> newsToReturn = new List<RssFoundItem>();
 
             try
             {
@@ -80,18 +80,21 @@ namespace AwsLamdaRssCore
                     foreach (var item in responseItems)
                     {
                         bool validItem = false;
-                        List<string> words = item.Title.Split(separators, StringSplitOptions.RemoveEmptyEntries)
+                        List<string> words = (item.Title + Environment.NewLine + item.Description).Split(separators, StringSplitOptions.RemoveEmptyEntries)
                             .ToList();
+                        List<string> occurrencies = new List<string>();
                         foreach (var word in words)
                         {
                             var w = word.Trim().ToLower();
                             if (rss.WhiteList.Any())
                             {
-                                var isInWhiteList = rss.WhiteList.Any(x => w.Trim().ToLower().Contains(x.Trim().ToLower()));
+                                string occurrence = rss.WhiteList.FirstOrDefault(x => w.Trim().ToLower().Contains(x.Trim().ToLower()));
+                                var isInWhiteList = !string.IsNullOrEmpty(occurrence);
                                 var isInBlackList = rss.BlackList.Any(y => w.Contains(y.Trim().ToLower()));
                                 if (isInWhiteList && !isInBlackList)
                                 {
                                     validItem = true;
+                                    occurrencies.Add(word);
                                     break;
                                 }
                             }
@@ -101,7 +104,7 @@ namespace AwsLamdaRssCore
                         if (validItem)
                         {
                             Console.WriteLine("Valid Rss item found for " + rss.URL);
-                            newsToReturn.Add(item.Url);
+                            newsToReturn.Add(new RssFoundItem(item.Url, occurrencies));
                         }
                     }
 
@@ -118,41 +121,56 @@ namespace AwsLamdaRssCore
     }
 
     public class RssResponseItem
-{
-    public string Url { get; set; }
-    public string Title { get; set; }
-    public DateTime PublishDate { get; set; }
-
-}
-
-public class RssSettings
-{
-    public List<RssSettingsItem> Rss { get; set; }
-
-    public RssSettings()
     {
-        Rss = new List<RssSettingsItem>();
+        public string Url { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public DateTime PublishDate { get; set; }
+
     }
-}
 
-public class RssSettingsItem
-{
-    public string URL { get; set; }
-
-    public List<string> WhiteList { get; set; }
-
-    public List<string> BlackList { get; set; }
-
-
-    public DateTime? LastDisplayedDateTime { get; set; }
-
-    public Func<string,string> contentPrehandleFunc { get; set; }
-
-    public RssSettingsItem()
+    public class RssSettings
     {
-        WhiteList = new List<string>();
-        BlackList = new List<string>();
-        contentPrehandleFunc = null;
+        public List<RssSettingsItem> Rss { get; set; }
+
+        public RssSettings()
+        {
+            Rss = new List<RssSettingsItem>();
+        }
     }
-}
+
+    public class RssSettingsItem
+    {
+        public string URL { get; set; }
+
+        public List<string> WhiteList { get; set; }
+
+        public List<string> BlackList { get; set; }
+
+
+        public DateTime? LastDisplayedDateTime { get; set; }
+
+        public Func<string, string> contentPrehandleFunc { get; set; }
+
+        public RssSettingsItem()
+        {
+            WhiteList = new List<string>();
+            BlackList = new List<string>();
+            contentPrehandleFunc = null;
+        }
+    }
+
+    public class RssFoundItem
+    {
+        public string Url { get; set; }
+        public List<string> Occurrences { get; set; }
+
+        public RssFoundItem(string url, List<string> occurrences)
+        {
+            Url = url;
+            Occurrences = occurrences;
+        }
+
+        
+    }
 }

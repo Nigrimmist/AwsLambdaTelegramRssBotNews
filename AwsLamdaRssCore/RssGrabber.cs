@@ -21,9 +21,9 @@ namespace AwsLamdaRssCore
             
         }
 
-        public async Task<List<string>> GrabUrls()
+        public async Task<List<RssFoundItem>> GrabUrls()
         {
-            List<string> toReturn = new List<string>();
+            List<RssFoundItem> toReturn = new List<RssFoundItem>();
             var rssModule = new RssModule();
             RssSettings settings = new RssSettings();
             settings.Rss = new List<RssSettingsItem>();
@@ -33,11 +33,13 @@ namespace AwsLamdaRssCore
             List<string> rssUrs = new List<string>()
             {
                 "https://news.tut.by/rss/all.rss",
-                "https://www.onliner.by/feed"
+                "https://www.onliner.by/feed",
+                "https://rsshub.app/telegram/channel/gaiminsk",
+                "https://rsshub.app/telegram/channel/pressmvd"
             };
 
             List<string> whiteList = new List<string>() {  "мото","мотобренд","мотопутешеств", "байк", "скутер", "электроцикл","мототехн", "harley","ducati","kawasaki" };
-            List<string> blackList = new List<string>() { "байкал", "мотор", "мотоблок" };
+            List<string> blackList = new List<string>() { "байкал", "мотор", "мотоблок", "мотолько" };
 
 
             settings.Rss.Add(new RssSettingsItem()
@@ -59,23 +61,23 @@ namespace AwsLamdaRssCore
             
             try
             {
-                var urls = rssModule.FindNews(settings);
-                Console.WriteLine("found " + urls.Count + " urls");
+                var foundItems = rssModule.FindNews(settings);
+                Console.WriteLine("found " + foundItems.Count + " urls");
 
-                if (urls.Any())
+                if (foundItems.Any())
                 {
                     using (StorageService store = new StorageService())
                     {
                         await store.CreateTableIfNeed("RSSNewsForMotoChannel", "NewsId");
                         List<RssFeedLog> latestStoredNews = await store.GetEntities<RssFeedLog>(10);
 
-                        foreach (var url in urls)
+                        foreach (var foundItem in foundItems)
                         {
-                            if (latestStoredNews.All(x => x.NewsUrl != url))
+                            if (latestStoredNews.All(x => x.NewsUrl != foundItem.Url))
                             {
-                                toReturn.Add(url);                                
+                                toReturn.Add(foundItem);                                
                                 Console.WriteLine("saving to db item");
-                                store.AddEntity(new RssFeedLog() {NewsId = Guid.NewGuid(), NewsUrl = url});
+                                store.AddEntity(new RssFeedLog() {NewsId = Guid.NewGuid(), NewsUrl = foundItem .Url});
                                 Console.WriteLine("saved");
 
                             }

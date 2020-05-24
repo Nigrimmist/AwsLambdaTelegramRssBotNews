@@ -89,12 +89,10 @@ namespace AwsLamdaRssCore
             var allDocs = await _context.ScanAsync<T>(conditions).GetRemainingAsync();
             Console.WriteLine("retrieved docs count : "+allDocs.Count);
 
-            var top10 = await _context.FromScanAsync<T>(new ScanOperationConfig
-            {
-                Limit = 10,
-                
-                //Filter = ...
-            }).GetNextSetAsync();
+            //var top10 = await _context.FromScanAsync<T>(new ScanOperationConfig
+            //{
+            //    Limit = 10,
+            //}).GetNextSetAsync();
 
             return allDocs;
         }

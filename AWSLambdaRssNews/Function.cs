@@ -27,14 +27,15 @@ namespace AWSLambdaRssNews
                 try
                 {
                     RssGrabber rssGrabber = new RssGrabber();
-                    var urlsToPost = await rssGrabber.GrabUrls();
+                    var itemsToPost = await rssGrabber.GrabUrls();
 
-                    foreach(var url in urlsToPost)
+                    foreach(var itemToPost in itemsToPost)
                     {
-                         sender.SendUrlWithButtonsToOwner(url);
+                         sender.SendUrlWithButtonsToOwner(itemToPost.Url);
+                         sender.SendMessageToDebug($"{itemToPost.Url} : {string.Join(',', itemToPost.Occurrences)}");
                     }
 
-                    return "done : "+ urlsToPost.Count;
+                    return "done : "+ itemsToPost.Count;
                 }
                 catch (Exception e)
                 {
