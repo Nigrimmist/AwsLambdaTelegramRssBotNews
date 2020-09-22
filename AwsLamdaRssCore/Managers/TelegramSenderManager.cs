@@ -32,7 +32,7 @@ namespace AwsLamdaRssCore.Managers
                     new ClientIntegrationSettings("Owner", AppConfig.OwnerChatId, AppConfig.MotoNewsChatBotToken, ClientIntegrationType.Owner),
                     new ClientIntegrationSettings("Debug", AppConfig.OwnerChatId, AppConfig.DebugBotToken, ClientIntegrationType.Debug),
                     new ClientIntegrationSettings("MotoNews channel", AppConfig.MotoNewsChatId, AppConfig.MotoNewsChatBotToken),
-                    new ClientIntegrationSettings("Local chat", AppConfig.PrivateMotoChatId, AppConfig.MonkeyJobBotToken)
+                    //new ClientIntegrationSettings("Local chat", AppConfig.PrivateMotoChatId, AppConfig.MonkeyJobBotToken)
                 }
             };
 
@@ -63,13 +63,22 @@ namespace AwsLamdaRssCore.Managers
 
         public void SendUrlWithButtonsToOwner(string url)
         {
-
-            var buttons = _integrationClients.Select(x => new InlineKeyboardButton()
+            List<InlineKeyboardButton> buttons = new List<InlineKeyboardButton>();
+            _integrationClients.ForEach(x =>
             {
-                Text = x.Settings.Name,
-                CallbackData = x.Settings.Name
-            }).ToArray();
-            var myInlineKeyboard = new InlineKeyboardMarkup(new[] {buttons});
+                buttons.Add(new InlineKeyboardButton()
+                {
+                    Text = x.Settings.Name,
+                    CallbackData = x.Settings.Name
+                });
+                buttons.Add(new InlineKeyboardButton()
+                {
+                    Text = x.Settings.Name + " [дубль]",
+                    CallbackData = x.Settings.Name + "[duplicate]"
+                });
+            });
+
+            var myInlineKeyboard = new InlineKeyboardMarkup(new[] { buttons });
             _ownerClient.Client.SendMessage(url, myInlineKeyboard);
         }
 
@@ -80,7 +89,7 @@ namespace AwsLamdaRssCore.Managers
 
         public void SendMessageToDebug(string message)
         {
-            _debugClient.Client.SendMessage("rss bot debug  : "+message);
+            _debugClient.Client.SendMessage("rss bot debug  : " + message);
         }
 
 
@@ -94,14 +103,22 @@ namespace AwsLamdaRssCore.Managers
             switch (webhook.Type)
             {
                 case Telegram.Bot.Types.Enums.UpdateType.CallbackQuery:
-                {
-                    string integrationClientName = webhook.CallbackQuery.Data;
+                    {
+                        string integrationClientName = webhook.CallbackQuery.Data;
+                        string text = webhook.CallbackQuery.Message.Text;
 
-                    var integrationClient = _integrationClients.Single(x => x.Settings.Name == integrationClientName);
-                    integrationClient.Client.SendMessage(webhook.CallbackQuery.Message.Text);
+                        bool isDuplicated = webhook.CallbackQuery.Data.EndsWith("[duplicate]");
+                        if (isDuplicated)
+                        {
+                            integrationClientName = integrationClientName.Replace("[duplicate]", "");
+                            string specialTelegramSymbol = "↪️";
+                            text = $"{specialTelegramSymbol} {text}";
+                        }
+                        var integrationClient = _integrationClients.Single(x => x.Settings.Name == integrationClientName);
+                        integrationClient.Client.SendMessage(text);
 
-                    break;
-                }
+                        break;
+                    }
             }
         }
     }
